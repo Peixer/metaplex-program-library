@@ -45,6 +45,7 @@ impl Processor {
         input: &[u8],
     ) -> ProgramResult {
         msg!("DALEEEEE");
+        
         let instruction = NFTPacksInstruction::try_from_slice(input)?;
         match instruction {
             NFTPacksInstruction::InitPack(args) => {
