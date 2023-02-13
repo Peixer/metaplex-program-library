@@ -1,5 +1,5 @@
-{
-  "name": "@metaplex-foundation/mpl-nft-packs",
+{ 
+  "name": "glaicon-nft-packs",
   "version": "0.1.2",
   "contractVersion": "0.1.0",
   "description": "MPL Token Metadata JavaScript API.",
