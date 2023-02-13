@@ -8,16 +8,6 @@ on:
     types: [created]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 17.0.1
-      - run: cd nft-packs && cd js && npm install
-      - run: cd nft-packs && cd js && npm run build
-
   publish-npm:
     needs: build
     runs-on: ubuntu-latest
@@ -28,6 +18,7 @@ jobs:
           node-version: 17.0.1
           registry-url: https://registry.npmjs.org/
       - run: cd nft-packs && cd js && npm install
+      - run: cd nft-packs && cd js && npm run api:gen
       - run: cd nft-packs && cd js && npm run build
       - run: cd nft-packs && cd js && npm publish
         env:
