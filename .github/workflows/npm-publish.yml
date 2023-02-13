@@ -15,6 +15,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 17.0.1
+      - run: cd nft-packs && cd js && npm install
       - run: cd nft-packs && cd js && npm run build
 
   publish-npm:
