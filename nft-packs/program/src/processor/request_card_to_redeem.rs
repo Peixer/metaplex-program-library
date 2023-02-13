@@ -12,9 +12,8 @@ use crate::{
     utils::*,
 };
 use arrayref::array_ref;
-use mpl_metaplex::state::Store;
 use mpl_token_metadata::{
-    state::{Edition, EDITION, PREFIX as EDITION_PREFIX},
+    state::{Edition},
     utils::assert_derivation,
 };
 use solana_program::{
@@ -38,7 +37,6 @@ pub fn request_card_for_redeem(
     let account_info_iter = &mut accounts.iter();
     let pack_set_account = next_account_info(account_info_iter)?;
     let pack_config_account = next_account_info(account_info_iter)?;
-    let store_account = next_account_info(account_info_iter)?;
     let edition_data_account = next_account_info(account_info_iter)?;
     let edition_mint_account = next_account_info(account_info_iter)?;
     let voucher_account = next_account_info(account_info_iter)?;
@@ -55,7 +53,6 @@ pub fn request_card_for_redeem(
 
     // Validate owners
     assert_owned_by(pack_set_account, program_id)?;
-    assert_owned_by(store_account, &mpl_metaplex::id())?;
     assert_owned_by(edition_mint_account, &spl_token::id())?;
     if let Some(user_token_account) = user_token_account {
         assert_owned_by(user_token_account, &spl_token::id())?;
@@ -73,9 +70,6 @@ pub fn request_card_for_redeem(
 
     pack_config.assert_cleaned_up()?;
 
-    let store = Store::from_account_info(store_account)?;
-
-    assert_owned_by(edition_data_account, &store.token_metadata_program)?;
     assert_signer(user_wallet_account)?;
 
     let pack_set = PackSet::unpack(&pack_set_account.data.borrow())?;
@@ -100,17 +94,6 @@ pub fn request_card_for_redeem(
     )?;
 
     assert_account_key(pack_set_account, &voucher.pack_set)?;
-
-    assert_derivation(
-        &store.token_metadata_program,
-        edition_data_account,
-        &[
-            EDITION_PREFIX.as_bytes(),
-            store.token_metadata_program.as_ref(),
-            edition_mint_account.key.as_ref(),
-            EDITION.as_bytes(),
-        ],
-    )?;
 
     let edition = Edition::from_account_info(edition_data_account)?;
     if edition.parent != voucher.master {

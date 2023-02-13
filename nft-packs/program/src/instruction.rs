@@ -125,10 +125,9 @@ pub enum NFTPacksInstruction {
         desc = "program account to hold MasterEdition token"
     )]
     #[account(9, name = "program_authority")]
-    #[account(10, name = "store")]
-    #[account(11, name = "rent", desc = "Rent")]
-    #[account(12, name = "system_program", desc = "System Program")]
-    #[account(13, name = "token_program", desc = "SPL Token program")]
+    #[account(10, name = "rent", desc = "Rent")]
+    #[account(11, name = "system_program", desc = "System Program")]
+    #[account(12, name = "token_program", desc = "SPL Token program")]
     AddCardToPack(AddCardToPackArgs),
 
     /// AddVoucherToPack
@@ -149,10 +148,9 @@ pub enum NFTPacksInstruction {
     #[account(5, name = "master_metadata")]
     #[account(6, name = "mint")]
     #[account(7, writable, name = "source")]
-    #[account(8, name = "store")]
-    #[account(9, name = "rent", desc = "Rent")]
-    #[account(10, name = "system_program", desc = "System Program")]
-    #[account(11, name = "token_program", desc = "SPL Token program")]
+    #[account(8, name = "rent", desc = "Rent")]
+    #[account(9, name = "system_program", desc = "System Program")]
+    #[account(10, name = "token_program", desc = "SPL Token program")]
     AddVoucherToPack,
 
     /// Activate
@@ -285,22 +283,21 @@ pub enum NFTPacksInstruction {
     /// - index    u32
     #[account(0, name = "pack_set")]
     #[account(1, writable, name = "pack_config", desc = "PDA, ['config', pack]")]
-    #[account(2, name = "store")]
-    #[account(3, name = "edition")]
-    #[account(4, name = "edition_mint")]
-    #[account(5, name = "pack_voucher")]
+    #[account(2, name = "edition")]
+    #[account(3, name = "edition_mint")]
+    #[account(4, name = "pack_voucher")]
     #[account(
-        6,
+        5,
         writable,
         name = "proving_process",
         desc = "PDA, ['proving', pack, user_wallet]"
     )]
-    #[account(7, signer, name = "user_wallet")]
-    #[account(8, name = "recent_slothashes", desc = "Solana Slot Hashes")]
-    #[account(9, name = "clock", desc = "Solana Clock")]
-    #[account(10, name = "rent", desc = "Rent")]
-    #[account(11, name = "system_program", desc = "System Program")]
-    #[account(12, optional, name = "user_token")]
+    #[account(6, signer, name = "user_wallet")]
+    #[account(7, name = "recent_slothashes", desc = "Solana Slot Hashes")]
+    #[account(8, name = "clock", desc = "Solana Clock")]
+    #[account(9, name = "rent", desc = "Rent")]
+    #[account(10, name = "system_program", desc = "System Program")]
+    #[account(11, optional, name = "user_token")]
     RequestCardForRedeem(RequestCardToRedeemArgs),
 
     /// CleanUp
@@ -350,7 +347,6 @@ pub fn add_card_to_pack(
     mint: &Pubkey,
     source: &Pubkey,
     token_account: &Pubkey,
-    store: &Pubkey,
     args: AddCardToPackArgs,
 ) -> Instruction {
     let (program_authority, _) = find_program_authority(program_id);
@@ -368,7 +364,6 @@ pub fn add_card_to_pack(
         AccountMeta::new(*source, false),
         AccountMeta::new(*token_account, false),
         AccountMeta::new(program_authority, false),
-        AccountMeta::new_readonly(*store, false),
         AccountMeta::new_readonly(sysvar::rent::id(), false),
         AccountMeta::new_readonly(system_program::id(), false),
         AccountMeta::new_readonly(spl_token::id(), false),
@@ -392,8 +387,7 @@ pub fn add_voucher_to_pack(
     master_edition: &Pubkey,
     master_metadata: &Pubkey,
     mint: &Pubkey,
-    source: &Pubkey,
-    store: &Pubkey,
+    source: &Pubkey
 ) -> Instruction {
     let accounts = vec![
         AccountMeta::new(*pack_set, false),
@@ -404,7 +398,6 @@ pub fn add_voucher_to_pack(
         AccountMeta::new_readonly(*master_metadata, false),
         AccountMeta::new_readonly(*mint, false),
         AccountMeta::new(*source, false),
-        AccountMeta::new_readonly(*store, false),
         AccountMeta::new_readonly(sysvar::rent::id(), false),
         AccountMeta::new_readonly(system_program::id(), false),
         AccountMeta::new_readonly(spl_token::id(), false),
@@ -618,7 +611,6 @@ pub fn edit_pack(
 pub fn request_card_for_redeem(
     program_id: &Pubkey,
     pack_set: &Pubkey,
-    store: &Pubkey,
     edition: &Pubkey,
     edition_mint: &Pubkey,
     user_wallet: &Pubkey,
@@ -635,7 +627,6 @@ pub fn request_card_for_redeem(
     let mut accounts = vec![
         AccountMeta::new(*pack_set, false),
         AccountMeta::new(pack_config, false),
-        AccountMeta::new_readonly(*store, false),
         AccountMeta::new_readonly(*edition, false),
         AccountMeta::new(*edition_mint, false),
         AccountMeta::new_readonly(pack_voucher, false),

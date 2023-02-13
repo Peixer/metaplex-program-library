@@ -7,7 +7,6 @@ use crate::{
     state::{InitPackVoucherParams, PackSet, PackSetState, PackVoucher},
     utils::*,
 };
-use mpl_metaplex::state::Store;
 use mpl_token_metadata::{
     error::MetadataError,
     state::{MasterEdition, MasterEditionV2, Metadata, EDITION, PREFIX},
@@ -34,19 +33,12 @@ pub fn add_voucher_to_pack(program_id: &Pubkey, accounts: &[AccountInfo]) -> Pro
     let master_metadata_info = next_account_info(account_info_iter)?;
     let mint_info = next_account_info(account_info_iter)?;
     let source_info = next_account_info(account_info_iter)?;
-    let store_info = next_account_info(account_info_iter)?;
     let rent_info = next_account_info(account_info_iter)?;
     let rent = &Rent::from_account_info(rent_info)?;
 
     assert_signer(authority_info)?;
     assert_signer(voucher_owner_info)?;
     assert_owned_by(pack_set_info, program_id)?;
-    assert_owned_by(store_info, &mpl_metaplex::id())?;
-
-    let store = Store::from_account_info(store_info)?;
-
-    assert_owned_by(master_edition_info, &store.token_metadata_program)?;
-    assert_owned_by(master_metadata_info, &store.token_metadata_program)?;
 
     let mut pack_set = PackSet::unpack(&pack_set_info.data.borrow_mut())?;
     assert_account_key(authority_info, &pack_set.authority)?;
