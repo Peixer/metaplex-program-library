@@ -79,7 +79,6 @@ pub fn request_card_for_redeem(
     assert_signer(user_wallet_account)?;
 
     let pack_set = PackSet::unpack(&pack_set_account.data.borrow())?;
-    assert_account_key(store_account, &pack_set.store)?;
 
     let proving_process_seeds = &[
         ProvingProcess::PREFIX.as_bytes(),

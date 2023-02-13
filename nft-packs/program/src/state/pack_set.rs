@@ -70,8 +70,6 @@ impl Default for PackDistributionType {
 pub struct PackSet {
     /// Account type - PackSet
     pub account_type: AccountType,
-    /// Store
-    pub store: Pubkey,
     /// Pack authority
     pub authority: Pubkey,
     /// Description
@@ -106,7 +104,6 @@ impl PackSet {
     /// Initialize a PackSet
     pub fn init(&mut self, params: InitPackSetParams) {
         self.account_type = AccountType::PackSet;
-        self.store = params.store;
         self.name = params.name;
         self.description = params.description;
         self.uri = params.uri;
@@ -255,8 +252,6 @@ impl PackSet {
 
 /// Initialize a PackSet params
 pub struct InitPackSetParams {
-    /// Store
-    pub store: Pubkey,
     /// Name
     pub name: [u8; 32],
     /// Description

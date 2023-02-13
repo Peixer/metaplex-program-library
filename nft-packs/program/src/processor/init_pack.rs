@@ -6,14 +6,13 @@ use crate::{
     state::{InitPackSetParams, PackSet, MAX_DESCRIPTION_LEN, MAX_URI_LENGTH},
     utils::*,
 };
-use mpl_metaplex::state::{Store, WhitelistedCreator, PREFIX};
 use solana_program::{
     account_info::{next_account_info, AccountInfo},
     entrypoint::ProgramResult,
     program_error::ProgramError,
     program_pack::{IsInitialized, Pack},
     pubkey::Pubkey,
-    sysvar::{clock::Clock, rent::Rent, Sysvar},
+    sysvar::{clock::Clock, rent::Rent, Sysvar}, msg,
 };
 
 /// Process InitPack instruction
@@ -22,24 +21,18 @@ pub fn init_pack(
     accounts: &[AccountInfo],
     args: InitPackSetArgs,
 ) -> ProgramResult {
+
+    msg!("init_pack brother");
     let account_info_iter = &mut accounts.iter();
     let pack_set_account = next_account_info(account_info_iter)?;
     let authority_account = next_account_info(account_info_iter)?;
-    let store_account = next_account_info(account_info_iter)?;
     let rent_info = next_account_info(account_info_iter)?;
     let rent = &Rent::from_account_info(rent_info)?;
     let clock_info = next_account_info(account_info_iter)?;
     let clock = &Clock::from_account_info(clock_info)?;
-    let whitelisted_creator_account = next_account_info(account_info_iter).ok();
 
     assert_rent_exempt(rent, pack_set_account)?;
     assert_signer(authority_account)?;
-    assert_owned_by(store_account, &mpl_metaplex::id())?;
-    assert_admin_whitelisted(
-        store_account,
-        whitelisted_creator_account,
-        authority_account,
-    )?;
 
     let mut pack_set = PackSet::unpack_unchecked(&pack_set_account.data.borrow_mut())?;
 
@@ -78,7 +71,6 @@ pub fn init_pack(
         description: args.description,
         uri: args.uri,
         authority: *authority_account.key,
-        store: *store_account.key,
         mutable: args.mutable,
         distribution_type: args.distribution_type,
         allowed_amount_to_redeem: args.allowed_amount_to_redeem,
@@ -88,49 +80,8 @@ pub fn init_pack(
 
     pack_set.puff_out_data_fields();
 
+
     PackSet::pack(pack_set, *pack_set_account.data.borrow_mut())?;
-
-    Ok(())
-}
-
-fn assert_admin_whitelisted(
-    store_account: &AccountInfo,
-    whitelisted_creator_account: Option<&AccountInfo>,
-    authority_account: &AccountInfo,
-) -> Result<(), ProgramError> {
-    let store = Store::from_account_info(store_account)?;
-    if store.public {
-        return Ok(());
-    }
-
-    if whitelisted_creator_account.is_none() {
-        return Err(NFTPacksError::WrongWhitelistedCreator.into());
-    }
-
-    let whitelisted_creator_account = whitelisted_creator_account.unwrap();
-
-    assert_owned_by(whitelisted_creator_account, &mpl_metaplex::id())?;
-
-    let whitelisted_creator = WhitelistedCreator::from_account_info(whitelisted_creator_account)?;
-    if !whitelisted_creator.activated {
-        return Err(NFTPacksError::WhitelistedCreatorInactive.into());
-    }
-
-    let (key, _) = Pubkey::find_program_address(
-        &[
-            PREFIX.as_bytes(),
-            mpl_metaplex::id().as_ref(),
-            store_account.key.as_ref(),
-            authority_account.key.as_ref(),
-        ],
-        &mpl_metaplex::id(),
-    );
-
-    if key != *whitelisted_creator_account.key
-        || whitelisted_creator.address != *authority_account.key
-    {
-        return Err(NFTPacksError::WrongWhitelistedCreator.into());
-    }
 
     Ok(())
 }

@@ -95,10 +95,9 @@ pub enum NFTPacksInstruction {
     /// - redeem_end_date    Option<u64>
     #[account(0, writable, name = "pack_set")]
     #[account(1, signer, name = "authority")]
-    #[account(2, name = "store")]
-    #[account(3, name = "rent", desc = "Rent account")]
-    #[account(4, name = "clock", desc = "Clock account")]
-    #[account(5, optional, name = "whitelisted_creator")]
+    #[account(2, name = "rent", desc = "Rent account")]
+    #[account(3, name = "clock", desc = "Clock account")]
+    #[account(4, optional, name = "whitelisted_creator")]
     InitPack(InitPackSetArgs),
 
     /// AddCardToPack
@@ -328,17 +327,13 @@ pub fn init_pack(
     program_id: &Pubkey,
     pack_set: &Pubkey,
     authority: &Pubkey,
-    store: &Pubkey,
-    whitelisted_creator: &Pubkey,
-    args: InitPackSetArgs,
+    args: InitPackSetArgs
 ) -> Instruction {
     let accounts = vec![
         AccountMeta::new(*pack_set, false),
         AccountMeta::new_readonly(*authority, true),
-        AccountMeta::new_readonly(*store, false),
         AccountMeta::new_readonly(sysvar::rent::id(), false),
-        AccountMeta::new_readonly(sysvar::clock::id(), false),
-        AccountMeta::new_readonly(*whitelisted_creator, false),
+        AccountMeta::new_readonly(sysvar::clock::id(), false)
     ];
 
     Instruction::new_with_borsh(*program_id, &NFTPacksInstruction::InitPack(args), accounts)

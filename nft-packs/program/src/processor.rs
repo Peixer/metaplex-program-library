@@ -44,6 +44,7 @@ impl Processor {
         accounts: &'a [AccountInfo<'a>],
         input: &[u8],
     ) -> ProgramResult {
+        msg!("DALEEEEE");
         let instruction = NFTPacksInstruction::try_from_slice(input)?;
         match instruction {
             NFTPacksInstruction::InitPack(args) => {

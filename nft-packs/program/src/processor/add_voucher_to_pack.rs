@@ -50,7 +50,6 @@ pub fn add_voucher_to_pack(program_id: &Pubkey, accounts: &[AccountInfo]) -> Pro
 
     let mut pack_set = PackSet::unpack(&pack_set_info.data.borrow_mut())?;
     assert_account_key(authority_info, &pack_set.authority)?;
-    assert_account_key(store_info, &pack_set.store)?;
 
     if pack_set.pack_state != PackSetState::NotActivated {
         return Err(NFTPacksError::WrongPackState.into());
